@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, jsonify
+from flask_cors import CORS  # CORSをインポート
 
 app = Flask(__name__)
+CORS(app)  # CORSを有効化
 
 # アプリのデータ（状態）
 total = 0
