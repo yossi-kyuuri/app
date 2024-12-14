@@ -1,50 +1,76 @@
-
 <!DOCTYPE html>
 
 <html lang="ja">
-<head>
+  <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <meta charset="utf-8">
-    <title>松山神社 - 会計すぐできる君 ver0</title>
+    <title>松山神社-会計すぐできる君ver0</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
     <style>
-        /* 基本のフォントサイズ調整 */
+        /* 全体の文字サイズを少し大きくする */
         body {
-            font-size: 1.2em;
+            font-size: 1.2em; /* 基本のフォントサイズ */
         }
         h1 {
-            font-size: 2em;
-            text-align: center;
-            margin-top: 20px;
+            font-size: 1.8em; /* 見出しのサイズ */
         }
         h2 {
-            font-size: 1.5em;
-            margin-bottom: 20px;
+            font-size: 1.5em; /* サブ見出しのサイズ */
         }
         button {
-            font-size: 1.1em;
-            margin: 5px;
+            font-size: 1.1em; /* ボタンのフォントサイズ */
         }
         input {
-            font-size: 1.1em;
-            margin-right: 10px;
-        }
-        .container {
-            padding: 20px;
-        }
-        .product-list {
-            margin-bottom: 20px;
-        }
-        .product-button {
-            font-weight: bold;
-            width: 100%;
-        }
-        .action-button {
-            width: 100%;
+            font-size: 1.1em; /* 入力フィールドのフォントサイズ */
         }
     </style>
+  </head>
+  <body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+
+    <h1>計算アプリ</h1>
+    <div>
+        <h2 id="total">合計: {{ total }}円</h2>
+    </div>
+
+    <!-- 商品リスト -->
+    <div>
+        {% for name, value in name_values.items() %}
+            <div>
+                <!-- インデックスに応じてボタンのクラスを設定 -->
+                <button 
+                    type="button" 
+                    class="btn {% if loop.index0 % 6 == 0 or loop.index0 % 6 == 5 %}btn-outline-danger
+                            {% elif loop.index0 % 6 == 1 or loop.index0 % 6 == 4 %}btn-outline-primary
+                            {% else %}btn-outline-success{% endif %}" 
+                    style="font-weight: bold;" 
+                    onclick="addProduct('{{ name }}')">
+                    {{ name }} (+{{ value }}円)
+                </button>
+
+                <span>クリック数: <span id="count-{{ name }}">{{ click_counts[name] }}</span></span>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- 支払い -->
+    <div>
+        <label for="input-value">金額を入力:</label>
+        <input type="number" id="input-value" />
+        <button onclick="subtract()">支払い</button>
+    </div>
+
+    <!-- 戻るボタン -->
+    <div>
+        <button onclick="undo()">1つ戻る</button>
+    </div>
+
+    <!-- リセット -->
+    <div>
+        <button onclick="reset()">リセット</button>
+    </div>    
+
     <script>
-        // 非同期でリクエスト送信
         async function sendRequest(endpoint, body = {}) {
             const response = await fetch(endpoint, {
                 method: 'POST',
@@ -75,76 +101,11 @@
         }
 
         function updateUI(data) {
-            document.getElementById('total').textContent = `合計: ${data.total}`;
+            document.getElementById('total').textContent = `合計: ${data.total}円`;
             for (const [key, count] of Object.entries(data.click_counts)) {
                 document.getElementById(`count-${key}`).textContent = count;
             }
         }
     </script>
-    <script>
-        // ズーム無効化のための処理
-        document.addEventListener('touchstart', function(e) {
-            if (e.touches.length > 1) {
-                e.preventDefault();
-            }
-        }, { passive: false });
-
-        document.addEventListener('gesturestart', function(e) {
-            e.preventDefault();
-        }, { passive: false });
-
-        let lastTouchTime = 0;
-        document.addEventListener('touchend', function(e) {
-            const currentTime = new Date().getTime();
-            if (currentTime - lastTouchTime <= 300) {
-                e.preventDefault();
-            }
-            lastTouchTime = currentTime;
-        }, { passive: false });
-    </script>
-</head>
-<body>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
-    
-    <div class="container">
-        <h1>計算アプリ</h1>
-
-        <!-- 合計表示 -->
-        <h2 id="total">合計: {{ total }}</h2>
-
-        <!-- 商品リスト -->
-        <div class="product-list">
-            {% for name, value in name_values.items() %}
-                <div class="mb-3">
-                    <button 
-                        type="button" 
-                        class="btn {% if loop.index0 % 6 == 0 or loop.index0 % 6 == 5 %}btn-outline-danger
-                                {% elif loop.index0 % 6 == 1 or loop.index0 % 6 == 4 %}btn-outline-primary
-                                {% else %}btn-outline-success{% endif %} product-button" 
-                        onclick="addProduct('{{ name }}')">
-                        {{ name }} (+{{ value }}円)
-                    </button>
-                    <span>クリック数: <span id="count-{{ name }}">{{ click_counts[name] }}</span></span>
-                </div>
-            {% endfor %}
-        </div>
-
-        <!-- 支払い -->
-        <div class="mb-3">
-            <label for="input-value">金額を入力:</label>
-            <input type="number" id="input-value" class="form-control" />
-            <button class="btn btn-success action-button" onclick="subtract()">支払い</button>
-        </div>
-
-        <!-- 戻るボタン -->
-        <div class="mb-3">
-            <button class="btn btn-warning action-button" onclick="undo()">1つ戻る</button>
-        </div>
-
-        <!-- リセット -->
-        <div>
-            <button class="btn btn-danger action-button" onclick="reset()">リセット</button>
-        </div>
-    </div>
-</body>
+  </body>
 </html>
