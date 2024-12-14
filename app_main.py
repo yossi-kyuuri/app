@@ -10,6 +10,7 @@ actions = []  # 操作履歴（買い物と支払い）
 
 @app.route("/")
 def index():
+    # 必要なデータをテンプレートに渡す
     return render_template(
         "index.html", 
         total=total, 
