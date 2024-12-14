@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-
+heroku logs --tail
 app = Flask(__name__)
 
 # アプリのデータ（状態）
