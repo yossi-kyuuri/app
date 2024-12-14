@@ -10,7 +10,6 @@ actions = []  # 操作履歴（買い物と支払い）
 
 @app.route("/")
 def index():
-    # 必要なデータをテンプレートに渡す
     return render_template(
         "index.html", 
         total=total, 
@@ -21,10 +20,7 @@ def index():
 @app.route("/add", methods=["POST"])
 def add():
     global total
-    name = request.json.get("name")
-    if name not in name_values:
-        return jsonify({"error": "無効な商品名です"}), 400
-    
+    name = request.json["name"]
     total += name_values[name]
     click_counts[name] += 1
     actions.append({"type": "add", "name": name})
@@ -33,10 +29,7 @@ def add():
 @app.route("/subtract", methods=["POST"])
 def subtract():
     global total
-    value = request.json.get("value")
-    if value is None or value <= 0:
-        return jsonify({"error": "無効な金額です"}), 400
-    
+    value = request.json["value"]
     total -= value
     actions.append({"type": "subtract", "value": value})
     return jsonify({"total": total})
