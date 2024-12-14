@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="ja">
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -9,19 +8,19 @@
     <style>
         /* 全体の文字サイズを少し大きくする */
         body {
-            font-size: 1.2em; /* 基本のフォントサイズ */
+            font-size: 1.2em;
         }
         h1 {
-            font-size: 1.8em; /* 見出しのサイズ */
+            font-size: 1.8em;
         }
         h2 {
-            font-size: 1.5em; /* サブ見出しのサイズ */
+            font-size: 1.5em;
         }
         button {
-            font-size: 1.1em; /* ボタンのフォントサイズ */
+            font-size: 1.1em;
         }
         input {
-            font-size: 1.1em; /* 入力フィールドのフォントサイズ */
+            font-size: 1.1em;
         }
     </style>
   </head>
@@ -37,7 +36,6 @@
     <div>
         {% for name, value in name_values.items() %}
             <div>
-                <!-- インデックスに応じてボタンのクラスを設定 -->
                 <button 
                     type="button" 
                     class="btn {% if loop.index0 % 6 == 0 or loop.index0 % 6 == 5 %}btn-outline-danger
@@ -47,7 +45,6 @@
                     onclick="addProduct('{{ name }}')">
                     {{ name }} (+{{ value }}円)
                 </button>
-
                 <span>クリック数: <span id="count-{{ name }}">{{ click_counts[name] }}</span></span>
             </div>
         {% endfor %}
