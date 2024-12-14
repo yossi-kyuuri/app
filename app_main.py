@@ -10,13 +10,17 @@ actions = []  # 操作履歴（買い物と支払い）
 
 @app.route("/")
 def index():
-    return render_template("index.html", total=total, click_counts=click_counts, name_values=name_values)
+    return render_template(
+        "index.html", 
+        total=total, 
+        click_counts=click_counts, 
+        name_values=name_values
+    )
 
 @app.route("/add", methods=["POST"])
 def add():
     global total
-    data = request.get_json()
-    name = data["name"]
+    name = request.json["name"]
     total += name_values[name]
     click_counts[name] += 1
     actions.append({"type": "add", "name": name})
@@ -25,8 +29,7 @@ def add():
 @app.route("/subtract", methods=["POST"])
 def subtract():
     global total
-    data = request.get_json()
-    value = data["value"]
+    value = request.json["value"]
     total -= value
     actions.append({"type": "subtract", "value": value})
     return jsonify({"total": total})
@@ -36,7 +39,7 @@ def undo():
     global total, click_counts, actions
     if not actions:
         return jsonify({"total": total, "click_counts": click_counts, "message": "戻る操作はありません。"})
-
+    
     last_action = actions.pop()
     if last_action["type"] == "add":
         name = last_action["name"]
